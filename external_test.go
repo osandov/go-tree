@@ -9,72 +9,12 @@ import (
 
 const NUM_NODES = 10000
 
-type intKey int
-
-func (n intKey) CompareTo(m Key) int {
-	if m, ok := m.(intKey); ok {
-		if n < m {
-			return -1
-		} else if n > m {
-			return 1
-		} else {
-			return 0
-		}
-	} else {
-		panic("invalid comparison")
-	}
-}
-
-// Binary search tree.
-
-func TestBSTGetMissing(t *testing.T) {
-	testGetMissing(t, NewBST())
-}
-
-func TestBSTSetUnique(t *testing.T) {
-	testSetUnique(t, NewBST())
-}
-
-func TestBSTSetDuplicates(t *testing.T) {
-	testSetDuplicates(t, NewBST())
-}
-
-func TestBSTDelMissing(t *testing.T) {
-	testDelMissing(t, NewBST())
-}
-
-func TestBSTDel(t *testing.T) {
-	testDel(t, NewBST())
-}
-
-// Splay tree.
-
-func TestSplayGetMissing(t *testing.T) {
-	testGetMissing(t, NewSplay())
-}
-
-func TestSplaySetUnique(t *testing.T) {
-	testSetUnique(t, NewSplay())
-}
-
-func TestSplaySetDuplicates(t *testing.T) {
-	testSetDuplicates(t, NewSplay())
-}
-
-func TestSplayDelMissing(t *testing.T) {
-	testDelMissing(t, NewSplay())
-}
-
-func TestSplayDel(t *testing.T) {
-	testDel(t, NewSplay())
-}
-
 // Test implementations.
 
 func testGetMissing(t *testing.T, tree Tree) {
 	for i := 0; i < NUM_NODES; i++ {
 		k := rand.Int()
-		_, ok := tree.Get(intKey(k))
+		_, ok := tree.Get(uint64Key(k))
 		if ok {
 			t.Fatalf("get failed: non-existent key %v was found\n", k)
 		}
@@ -83,14 +23,14 @@ func testGetMissing(t *testing.T, tree Tree) {
 
 func testSetUnique(t *testing.T, tree Tree) {
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(intKey(v), v)
+		_, ok := tree.Set(uint64Key(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
 	for i := 0; i < NUM_NODES; i++ {
-		v, ok := tree.Get(intKey(i))
+		v, ok := tree.Get(uint64Key(i))
 		if !ok {
 			t.Fatalf("set failed: %v was not in tree\n", i)
 
@@ -103,14 +43,14 @@ func testSetUnique(t *testing.T, tree Tree) {
 
 func testSetDuplicates(t *testing.T, tree Tree) {
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(intKey(v), v)
+		_, ok := tree.Set(uint64Key(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
 	for i, v := range rand.Perm(NUM_NODES) {
-		ov, ok := tree.Set(intKey(v), -v)
+		ov, ok := tree.Set(uint64Key(v), -v)
 		if !ok {
 			t.Errorf("set failed: duplicate missing on set %v of %v\n", i, v)
 		}
@@ -121,7 +61,7 @@ func testSetDuplicates(t *testing.T, tree Tree) {
 	}
 
 	for i := 0; i < NUM_NODES; i++ {
-		v, ok := tree.Get(intKey(i))
+		v, ok := tree.Get(uint64Key(i))
 		if !ok {
 			t.Fatalf("set failed: %v was not in tree\n", i)
 			continue
@@ -135,7 +75,7 @@ func testSetDuplicates(t *testing.T, tree Tree) {
 func testDelMissing(t *testing.T, tree Tree) {
 	for i := 0; i < NUM_NODES; i++ {
 		k := rand.Int()
-		_, ok := tree.Del(intKey(k))
+		_, ok := tree.Del(uint64Key(k))
 		if ok {
 			t.Fatalf("delete failed: non-existent key %v was found\n", k)
 		}
@@ -144,14 +84,14 @@ func testDelMissing(t *testing.T, tree Tree) {
 
 func testDel(t *testing.T, tree Tree) {
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(intKey(v), v)
+		_, ok := tree.Set(uint64Key(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
 	for i := 0; i < NUM_NODES; i++ {
-		v, ok := tree.Del(intKey(i))
+		v, ok := tree.Del(uint64Key(i))
 		if !ok {
 			t.Errorf("delete failed: %v was not in tree\n", i)
 		}
@@ -161,7 +101,7 @@ func testDel(t *testing.T, tree Tree) {
 	}
 
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(intKey(v), v)
+		_, ok := tree.Set(uint64Key(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %v of %v\n", i, v)
 		}
@@ -170,7 +110,7 @@ func testDel(t *testing.T, tree Tree) {
 	perm := rand.Perm(NUM_NODES)
 
 	for _, v := range perm[:NUM_NODES/2] {
-		ov, ok := tree.Del(intKey(v))
+		ov, ok := tree.Del(uint64Key(v))
 		if !ok {
 			t.Errorf("delete failed: %v was not in tree\n", v)
 		}
@@ -180,14 +120,14 @@ func testDel(t *testing.T, tree Tree) {
 	}
 
 	for _, v := range perm[:NUM_NODES/2] {
-		_, ok := tree.Get(intKey(v))
+		_, ok := tree.Get(uint64Key(v))
 		if ok {
 			t.Errorf("delete failed: %v still in tree\n", v)
 		}
 	}
 
 	for _, v := range perm[NUM_NODES/2:] {
-		ov, ok := tree.Get(intKey(v))
+		ov, ok := tree.Get(uint64Key(v))
 		if !ok {
 			t.Errorf("delete failed: %v was not in tree\n", v)
 			continue
@@ -196,4 +136,55 @@ func testDel(t *testing.T, tree Tree) {
 			t.Errorf("delete failed: got %v, expected %v\n", v, ov)
 		}
 	}
+}
+
+// Binary search tree.
+func TestBSTDelMissing(t *testing.T) {
+	testDelMissing(t, NewBST())
+}
+func TestBSTDel(t *testing.T) {
+	testDel(t, NewBST())
+}
+func TestBSTSetDuplicates(t *testing.T) {
+	testSetDuplicates(t, NewBST())
+}
+func TestBSTGetMissing(t *testing.T) {
+	testGetMissing(t, NewBST())
+}
+func TestBSTSetUnique(t *testing.T) {
+	testSetUnique(t, NewBST())
+}
+
+// Splay tree.
+func TestSplayDelMissing(t *testing.T) {
+	testDelMissing(t, NewSplay())
+}
+func TestSplayDel(t *testing.T) {
+	testDel(t, NewSplay())
+}
+func TestSplaySetDuplicates(t *testing.T) {
+	testSetDuplicates(t, NewSplay())
+}
+func TestSplayGetMissing(t *testing.T) {
+	testGetMissing(t, NewSplay())
+}
+func TestSplaySetUnique(t *testing.T) {
+	testSetUnique(t, NewSplay())
+}
+
+// Simple trie.
+func TestSimpleTrieDelMissing(t *testing.T) {
+	testDelMissing(t, NewTreeFromTrie(NewTrie()))
+}
+func TestSimpleTrieDel(t *testing.T) {
+	testDel(t, NewTreeFromTrie(NewTrie()))
+}
+func TestSimpleTrieSetDuplicates(t *testing.T) {
+	testSetDuplicates(t, NewTreeFromTrie(NewTrie()))
+}
+func TestSimpleTrieGetMissing(t *testing.T) {
+	testGetMissing(t, NewTreeFromTrie(NewTrie()))
+}
+func TestSimpleTrieSetUnique(t *testing.T) {
+	testSetUnique(t, NewTreeFromTrie(NewTrie()))
 }

@@ -13,7 +13,7 @@ func createBalancedTree(tree Tree, n, m int) {
 	}
 
 	mid := (n + m) / 2
-	tree.Set(intKey(mid), mid)
+	tree.Set(uint64Key(mid), mid)
 	createBalancedTree(tree, n, mid)
 	createBalancedTree(tree, mid+1, n)
 }
@@ -77,7 +77,7 @@ func benchmarkRandomGet(b *testing.B, tree Tree) {
 	createBalancedTree(tree, 0, b.N)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tree.Get(intKey(rand.Intn(b.N)))
+		tree.Get(uint64Key(rand.Intn(b.N)))
 	}
 }
 
@@ -86,7 +86,7 @@ func benchmarkLocalGet(b *testing.B, tree Tree) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		x := i + rand.Intn(10) - 5
-		tree.Get(intKey(x))
+		tree.Get(uint64Key(x))
 	}
 }
 
@@ -95,8 +95,8 @@ func benchmarkRandomDel(b *testing.B, tree Tree) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		x := rand.Intn(b.N)
-		tree.Del(intKey(x))
-		tree.Set(intKey(x), x)
+		tree.Del(uint64Key(x))
+		tree.Set(uint64Key(x), x)
 	}
 }
 
@@ -105,7 +105,7 @@ func benchmarkLocalDel(b *testing.B, tree Tree) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		x := i + rand.Intn(10) - 5
-		tree.Del(intKey(x))
-		tree.Set(intKey(x), x)
+		tree.Del(uint64Key(x))
+		tree.Set(uint64Key(x), x)
 	}
 }
