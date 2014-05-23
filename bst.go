@@ -10,9 +10,9 @@ type binarySearchTree struct {
 
 // Node in a binary search tree.
 type bstNode struct {
-	key         Key
-	value       interface{}
-	left, right *bstNode
+	key                 Key
+	value               interface{}
+	parent, left, right *bstNode
 }
 
 // Create a new binary search tree.
@@ -48,7 +48,7 @@ func (bst *binarySearchTree) Set(key Key, value interface{}) (interface{}, bool)
 	// If the root is nil, then this is the first node and therefore the new
 	// root.
 	if node == nil {
-		bst.root = &bstNode{key, value, nil, nil}
+		bst.root = &bstNode{key, value, nil, nil, nil}
 		return nil, false
 	}
 
@@ -57,14 +57,14 @@ func (bst *binarySearchTree) Set(key Key, value interface{}) (interface{}, bool)
 		cmp := node.key.CompareTo(key)
 		if cmp < 0 {
 			if node.left == nil {
-				node.left = &bstNode{key, value, nil, nil}
+				node.left = &bstNode{key, value, node, nil, nil}
 				return nil, false
 			} else {
 				node = node.left
 			}
 		} else if cmp > 0 {
 			if node.right == nil {
-				node.right = &bstNode{key, value, nil, nil}
+				node.right = &bstNode{key, value, node, nil, nil}
 				return nil, false
 			} else {
 				node = node.right
@@ -79,11 +79,9 @@ func (bst *binarySearchTree) Set(key Key, value interface{}) (interface{}, bool)
 }
 
 func (bst *binarySearchTree) Del(key Key) (interface{}, bool) {
-	var parent *bstNode
 	node := bst.root
 
-	// Iterate down the tree to find the node to remove, keeping track of the
-	// parent node.
+	// Iterate down the tree to find the node to remove.
 	for {
 		// The key isn't in the tree.
 		if node == nil {
@@ -92,9 +90,9 @@ func (bst *binarySearchTree) Del(key Key) (interface{}, bool) {
 
 		cmp := node.key.CompareTo(key)
 		if cmp < 0 {
-			parent, node = node, node.left
+			node = node.left
 		} else if cmp > 0 {
-			parent, node = node, node.right
+			node = node.right
 		} else {
 			// Found it.
 			break
@@ -108,22 +106,32 @@ func (bst *binarySearchTree) Del(key Key) (interface{}, bool) {
 
 		// Find the successor node (smallest node which is greater than the
 		// target node).
-		successorParent := node
 		successor := node.right
 		for successor.left != nil {
-			successorParent, successor = successor, successor.left
+			successor = successor.left
 		}
 
 		// Remove it from the tree.
-		if successor == successorParent.left {
-			successorParent.left = successor.right
+		if successor == successor.parent.left {
+			successor.parent.left = successor.right
 		} else {
-			successorParent.right = successor.right
+			successor.parent.right = successor.right
+		}
+		if successor.right != nil {
+			successor.right.parent = successor.parent
+		}
+
+		// Adopt the node's children.
+		successor.left = node.left
+		if successor.left != nil {
+			successor.left.parent = successor
+		}
+		successor.right = node.right
+		if successor.right != nil {
+			successor.right.parent = successor
 		}
 
 		// Replace the node with its successor.
-		successor.left = node.left
-		successor.right = node.right
 		replacement = successor
 	} else if node.left != nil {
 		// One child on the left.
@@ -139,12 +147,15 @@ func (bst *binarySearchTree) Del(key Key) (interface{}, bool) {
 
 	// No children and common fall-through code.
 
-	if parent == nil {
+	if node.parent == nil {
 		bst.root = replacement
-	} else if node == parent.left {
-		parent.left = replacement
+	} else if node == node.parent.left {
+		node.parent.left = replacement
 	} else {
-		parent.right = replacement
+		node.parent.right = replacement
+	}
+	if replacement != nil {
+		replacement.parent = node.parent
 	}
 
 	return node.value, true

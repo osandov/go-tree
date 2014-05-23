@@ -5,7 +5,10 @@ package tree
 import (
 	"math/rand"
 	"testing"
+	"time"
 )
+
+const NUM_NODES = 10000
 
 type IntKey int
 
@@ -28,6 +31,7 @@ func TestBST(t *testing.T) {
 }
 
 func testTree(t *testing.T, treeFactory func() Tree) {
+	rand.Seed(time.Now().UnixNano())
 	testGetMissing(t, treeFactory())
 	testSetUnique(t, treeFactory())
 	testSetDuplicates(t, treeFactory())
@@ -40,7 +44,7 @@ func testGetMissing(t *testing.T, tree Tree) {
 		t.Logf("%T: get missing\n", tree)
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < NUM_NODES; i++ {
 		k := rand.Int()
 		_, ok := tree.Get(IntKey(k))
 		if ok {
@@ -54,14 +58,14 @@ func testSetUnique(t *testing.T, tree Tree) {
 		t.Logf("%T: set unique\n", tree)
 	}
 
-	for i, v := range rand.Perm(100) {
+	for i, v := range rand.Perm(NUM_NODES) {
 		_, ok := tree.Set(IntKey(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %d of %d\n", i, v)
 		}
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < NUM_NODES; i++ {
 		v, ok := tree.Get(IntKey(i))
 		if !ok {
 			t.Fatalf("set failed: %d was not in tree\n", i)
@@ -78,14 +82,14 @@ func testSetDuplicates(t *testing.T, tree Tree) {
 		t.Logf("%T: set duplicates\n", tree)
 	}
 
-	for i, v := range rand.Perm(100) {
+	for i, v := range rand.Perm(NUM_NODES) {
 		_, ok := tree.Set(IntKey(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %d of %d\n", i, v)
 		}
 	}
 
-	for i, v := range rand.Perm(100) {
+	for i, v := range rand.Perm(NUM_NODES) {
 		ov, ok := tree.Set(IntKey(v), -v)
 		if !ok {
 			t.Errorf("set failed: duplicate missing on set %d of %d\n", i, v)
@@ -96,7 +100,7 @@ func testSetDuplicates(t *testing.T, tree Tree) {
 		}
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < NUM_NODES; i++ {
 		v, ok := tree.Get(IntKey(i))
 		if !ok {
 			t.Fatalf("set failed: %d was not in tree\n", i)
@@ -113,7 +117,7 @@ func testDelMissing(t *testing.T, tree Tree) {
 		t.Logf("%T: delete missing\n", tree)
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < NUM_NODES; i++ {
 		k := rand.Int()
 		_, ok := tree.Del(IntKey(k))
 		if ok {
@@ -127,14 +131,14 @@ func testDel(t *testing.T, tree Tree) {
 		t.Logf("%T: delete\n", tree)
 	}
 
-	for i, v := range rand.Perm(100) {
+	for i, v := range rand.Perm(NUM_NODES) {
 		_, ok := tree.Set(IntKey(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %d of %d\n", i, v)
 		}
 	}
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < NUM_NODES; i++ {
 		v, ok := tree.Del(IntKey(i))
 		if !ok {
 			t.Errorf("delete failed: %d was not in tree\n", i)
@@ -144,16 +148,16 @@ func testDel(t *testing.T, tree Tree) {
 		}
 	}
 
-	for i, v := range rand.Perm(100) {
+	for i, v := range rand.Perm(NUM_NODES) {
 		_, ok := tree.Set(IntKey(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %d of %d\n", i, v)
 		}
 	}
 
-	perm := rand.Perm(100)
+	perm := rand.Perm(NUM_NODES)
 
-	for _, v := range perm[:50] {
+	for _, v := range perm[:NUM_NODES/2] {
 		ov, ok := tree.Del(IntKey(v))
 		if !ok {
 			t.Errorf("delete failed: %d was not in tree\n", v)
@@ -163,14 +167,14 @@ func testDel(t *testing.T, tree Tree) {
 		}
 	}
 
-	for _, v := range perm[:50] {
+	for _, v := range perm[:NUM_NODES/2] {
 		_, ok := tree.Get(IntKey(v))
 		if ok {
 			t.Errorf("delete failed: %d still in tree\n", v)
 		}
 	}
 
-	for _, v := range perm[50:] {
+	for _, v := range perm[NUM_NODES/2:] {
 		ov, ok := tree.Get(IntKey(v))
 		if !ok {
 			t.Errorf("delete failed: %d was not in tree\n", v)
