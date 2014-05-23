@@ -30,6 +30,10 @@ func TestBST(t *testing.T) {
 	testTree(t, NewBST)
 }
 
+func TestSplay(t *testing.T) {
+	testTree(t, NewSplay)
+}
+
 func testTree(t *testing.T, treeFactory func() Tree) {
 	rand.Seed(time.Now().UnixNano())
 	testGetMissing(t, treeFactory())
