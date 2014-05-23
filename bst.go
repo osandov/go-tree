@@ -179,3 +179,45 @@ func (bst *binarySearchTree) del(key Key) *bstNode {
 
 	return node
 }
+
+func (bst *binarySearchTree) rotateLeft(node *bstNode) {
+	right := node.right
+
+	node.right = right.left
+	if node.right != nil {
+		node.right.parent = node
+	}
+
+	if node.parent == nil {
+		bst.root = right
+	} else if node == node.parent.left {
+		node.parent.left = right
+	} else {
+		node.parent.right = right
+	}
+
+	right.parent = node.parent
+	right.left = node
+	node.parent = right
+}
+
+func (bst *binarySearchTree) rotateRight(node *bstNode) {
+	left := node.left
+
+	node.left = left.right
+	if node.left != nil {
+		node.left.parent = node
+	}
+
+	if node.parent == nil {
+		bst.root = left
+	} else if node == node.parent.left {
+		node.parent.left = left
+	} else {
+		node.parent.right = left
+	}
+
+	left.parent = node.parent
+	left.right = node
+	node.parent = left
+}
