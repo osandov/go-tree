@@ -8,7 +8,9 @@ type splayTree struct {
 	bst binarySearchTree
 }
 
-// Create a new splay tree.
+// NewSplay creates an empty splay tree. A splay tree is a self-adjusting
+// variant of a binary search tree that optimizes for locality of reference. It
+// has amortized O(log n) behavior in the worst case.
 func NewSplay() Tree {
 	return new(splayTree)
 }

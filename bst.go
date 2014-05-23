@@ -15,7 +15,9 @@ type bstNode struct {
 	parent, left, right *bstNode
 }
 
-// Create a new binary search tree.
+// NewBST creates an empty binary search tree. The binary search tree is not
+// self-balancing, so in the worst case all operations are O(n), but the
+// average complexity is O(log n).
 func NewBST() Tree {
 	return new(binarySearchTree)
 }

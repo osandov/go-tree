@@ -14,6 +14,9 @@ type trieNode struct {
 	children [2]*trieNode
 }
 
+// NewTrie creates an empty bitwise trie. Time complexity is O(m), where m is
+// the size of the bit string (64). This implementation does not do any
+// optimizations for special cases.
 func NewTrie() Trie {
 	return new(trie)
 }

@@ -3,6 +3,7 @@ Package tree implements several tree structures.
 */
 package tree
 
+// Key in a tree.
 type Key interface {
 	CompareTo(Key) int
 }

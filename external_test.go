@@ -14,7 +14,7 @@ const NUM_NODES = 10000
 func testGetMissing(t *testing.T, tree Tree) {
 	for i := 0; i < NUM_NODES; i++ {
 		k := rand.Int()
-		_, ok := tree.Get(uint64Key(k))
+		_, ok := tree.Get(Uint64Key(k))
 		if ok {
 			t.Fatalf("get failed: non-existent key %v was found\n", k)
 		}
@@ -23,14 +23,14 @@ func testGetMissing(t *testing.T, tree Tree) {
 
 func testSetUnique(t *testing.T, tree Tree) {
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(uint64Key(v), v)
+		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
 	for i := 0; i < NUM_NODES; i++ {
-		v, ok := tree.Get(uint64Key(i))
+		v, ok := tree.Get(Uint64Key(i))
 		if !ok {
 			t.Fatalf("set failed: %v was not in tree\n", i)
 
@@ -43,14 +43,14 @@ func testSetUnique(t *testing.T, tree Tree) {
 
 func testSetDuplicates(t *testing.T, tree Tree) {
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(uint64Key(v), v)
+		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
 	for i, v := range rand.Perm(NUM_NODES) {
-		ov, ok := tree.Set(uint64Key(v), -v)
+		ov, ok := tree.Set(Uint64Key(v), -v)
 		if !ok {
 			t.Errorf("set failed: duplicate missing on set %v of %v\n", i, v)
 		}
@@ -61,7 +61,7 @@ func testSetDuplicates(t *testing.T, tree Tree) {
 	}
 
 	for i := 0; i < NUM_NODES; i++ {
-		v, ok := tree.Get(uint64Key(i))
+		v, ok := tree.Get(Uint64Key(i))
 		if !ok {
 			t.Fatalf("set failed: %v was not in tree\n", i)
 			continue
@@ -75,7 +75,7 @@ func testSetDuplicates(t *testing.T, tree Tree) {
 func testDelMissing(t *testing.T, tree Tree) {
 	for i := 0; i < NUM_NODES; i++ {
 		k := rand.Int()
-		_, ok := tree.Del(uint64Key(k))
+		_, ok := tree.Del(Uint64Key(k))
 		if ok {
 			t.Fatalf("delete failed: non-existent key %v was found\n", k)
 		}
@@ -84,14 +84,14 @@ func testDelMissing(t *testing.T, tree Tree) {
 
 func testDel(t *testing.T, tree Tree) {
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(uint64Key(v), v)
+		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
 	for i := 0; i < NUM_NODES; i++ {
-		v, ok := tree.Del(uint64Key(i))
+		v, ok := tree.Del(Uint64Key(i))
 		if !ok {
 			t.Errorf("delete failed: %v was not in tree\n", i)
 		}
@@ -101,7 +101,7 @@ func testDel(t *testing.T, tree Tree) {
 	}
 
 	for i, v := range rand.Perm(NUM_NODES) {
-		_, ok := tree.Set(uint64Key(v), v)
+		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %v of %v\n", i, v)
 		}
@@ -110,7 +110,7 @@ func testDel(t *testing.T, tree Tree) {
 	perm := rand.Perm(NUM_NODES)
 
 	for _, v := range perm[:NUM_NODES/2] {
-		ov, ok := tree.Del(uint64Key(v))
+		ov, ok := tree.Del(Uint64Key(v))
 		if !ok {
 			t.Errorf("delete failed: %v was not in tree\n", v)
 		}
@@ -120,14 +120,14 @@ func testDel(t *testing.T, tree Tree) {
 	}
 
 	for _, v := range perm[:NUM_NODES/2] {
-		_, ok := tree.Get(uint64Key(v))
+		_, ok := tree.Get(Uint64Key(v))
 		if ok {
 			t.Errorf("delete failed: %v still in tree\n", v)
 		}
 	}
 
 	for _, v := range perm[NUM_NODES/2:] {
-		ov, ok := tree.Get(uint64Key(v))
+		ov, ok := tree.Get(Uint64Key(v))
 		if !ok {
 			t.Errorf("delete failed: %v was not in tree\n", v)
 			continue
