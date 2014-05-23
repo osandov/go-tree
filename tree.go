@@ -8,15 +8,18 @@ type Key interface {
 }
 
 type Tree interface {
-	// Get the value corresponding to the given key. If the key was in the
-	// tree, return the corresponding value and true; otherwise, return false.
+	// Get returns the value corresponding to the given key. If the key was in
+	// the tree, it returns the corresponding value and true; otherwise, it
+	// returns false.
 	Get(Key) (interface{}, bool)
 
-	// Insert a value with the given tree to a key. If the key was already in
-	// the tree, return the old value and true; otherwise, return false.
+	// Set inserts a value with the given key to a tree. If the key was already
+	// in the tree, it returns the old value and true; otherwise, it returns
+	// false.
 	Set(Key, interface{}) (interface{}, bool)
 
-	// Remove the node with the given key from the tree. If the key was in the
-	// tree, return the corresponding value and true; otherwise, return false.
+	// Del removes the node with the given key from the tree. If the key was in
+	// the tree, it returns the corresponding value and true; otherwise, it
+	// returns false.
 	Del(Key) (interface{}, bool)
 }

@@ -21,13 +21,24 @@ func NewBST() Tree {
 }
 
 func (bst *binarySearchTree) Get(key Key) (interface{}, bool) {
+	node := bst.get(key)
+
+	if node == nil {
+		return nil, false
+	} else {
+		return node.value, true
+	}
+}
+
+// get finds the node with the given key.
+func (bst *binarySearchTree) get(key Key) *bstNode {
 	node := bst.root
 
 	// Iterate down the tree.
 	for {
 		// We hit nil; the key isn't in the tree.
 		if node == nil {
-			return nil, false
+			return nil
 		}
 
 		cmp := node.key.CompareTo(key)
@@ -37,19 +48,33 @@ func (bst *binarySearchTree) Get(key Key) (interface{}, bool) {
 			node = node.right
 		} else {
 			// Found it.
-			return node.value, true
+			return node
 		}
 	}
 }
 
 func (bst *binarySearchTree) Set(key Key, value interface{}) (interface{}, bool) {
+	node, exists := bst.add(key)
+
+	if exists {
+		orig_value := node.value
+		node.value = value
+		return orig_value, true
+	} else {
+		node.value = value
+		return nil, false
+	}
+}
+
+// add returns the node containing the given key or creates one and returns it.
+func (bst *binarySearchTree) add(key Key) (*bstNode, bool) {
 	node := bst.root
 
 	// If the root is nil, then this is the first node and therefore the new
 	// root.
 	if node == nil {
-		bst.root = &bstNode{key, value, nil, nil, nil}
-		return nil, false
+		bst.root = &bstNode{key, nil, nil, nil, nil}
+		return bst.root, false
 	}
 
 	// Iterate down the tree.
@@ -57,46 +82,40 @@ func (bst *binarySearchTree) Set(key Key, value interface{}) (interface{}, bool)
 		cmp := node.key.CompareTo(key)
 		if cmp < 0 {
 			if node.left == nil {
-				node.left = &bstNode{key, value, node, nil, nil}
-				return nil, false
+				node.left = &bstNode{key, nil, node, nil, nil}
+				return node.left, false
 			} else {
 				node = node.left
 			}
 		} else if cmp > 0 {
 			if node.right == nil {
-				node.right = &bstNode{key, value, node, nil, nil}
-				return nil, false
+				node.right = &bstNode{key, nil, node, nil, nil}
+				return node.right, false
 			} else {
 				node = node.right
 			}
 		} else {
-			orig_value := node.value
 			node.key = key
-			node.value = value
-			return orig_value, true
+			return node, true
 		}
 	}
 }
 
 func (bst *binarySearchTree) Del(key Key) (interface{}, bool) {
-	node := bst.root
+	node := bst.del(key)
 
-	// Iterate down the tree to find the node to remove.
-	for {
-		// The key isn't in the tree.
-		if node == nil {
-			return nil, false
-		}
+	if node == nil {
+		return nil, false
+	} else {
+		return node.value, true
+	}
+}
 
-		cmp := node.key.CompareTo(key)
-		if cmp < 0 {
-			node = node.left
-		} else if cmp > 0 {
-			node = node.right
-		} else {
-			// Found it.
-			break
-		}
+// del removes the node with the given key and returns it.
+func (bst *binarySearchTree) del(key Key) *bstNode {
+	node := bst.get(key)
+	if node == nil {
+		return nil
 	}
 
 	var replacement *bstNode
@@ -158,5 +177,5 @@ func (bst *binarySearchTree) Del(key Key) (interface{}, bool) {
 		replacement.parent = node.parent
 	}
 
-	return node.value, true
+	return node
 }
