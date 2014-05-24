@@ -43,7 +43,7 @@ func (ctr *clzTrie) Set(key uint64, value interface{}) (interface{}, bool) {
 	node := ctr.zeroNodes[lz]
 	for node == nil {
 		lz--
-		node = ctr.zeroNodes[lz];
+		node = ctr.zeroNodes[lz]
 	}
 
 	for i := uint(lz); i < 64; i++ {

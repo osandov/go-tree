@@ -22,13 +22,13 @@ func TestCLZRandom(t *testing.T) {
 }
 
 func BenchmarkCLZGo(b *testing.B) {
-	for i := 0; i < b.N * b.N; i++ {
+	for i := 0; i < b.N*b.N; i++ {
 		clz_g(uint64(rand.Uint32())<<32 | uint64(rand.Uint32()))
 	}
 }
 
 func BenchmarkCLZ(b *testing.B) {
-	for i := 0; i < b.N * b.N; i++ {
+	for i := 0; i < b.N*b.N; i++ {
 		clz(uint64(rand.Uint32())<<32 | uint64(rand.Uint32()))
 	}
 }
