@@ -1,6 +1,7 @@
 package tree
 
 // Test the external correctness of the tree implementations.
+// vim: ft=go
 
 import (
 	"math/rand"
@@ -187,4 +188,21 @@ func TestSimpleTrieGetMissing(t *testing.T) {
 }
 func TestSimpleTrieSetUnique(t *testing.T) {
 	testSetUnique(t, NewTreeFromTrie(NewTrie()))
+}
+
+// CLZ trie.
+func TestCLZTrieDelMissing(t *testing.T) {
+	testDelMissing(t, NewTreeFromTrie(NewCLZTrie()))
+}
+func TestCLZTrieDel(t *testing.T) {
+	testDel(t, NewTreeFromTrie(NewCLZTrie()))
+}
+func TestCLZTrieSetDuplicates(t *testing.T) {
+	testSetDuplicates(t, NewTreeFromTrie(NewCLZTrie()))
+}
+func TestCLZTrieGetMissing(t *testing.T) {
+	testGetMissing(t, NewTreeFromTrie(NewCLZTrie()))
+}
+func TestCLZTrieSetUnique(t *testing.T) {
+	testSetUnique(t, NewTreeFromTrie(NewCLZTrie()))
 }

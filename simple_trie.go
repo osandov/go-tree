@@ -57,9 +57,9 @@ func (tr *trie) Set(key uint64, value interface{}) (interface{}, bool) {
 	}
 
 	if node.hasValue {
-		orig_value := node.value
+		origValue := node.value
 		node.value = value
-		return orig_value, true
+		return origValue, true
 	} else {
 		node.value = value
 		node.hasValue = true
@@ -68,21 +68,12 @@ func (tr *trie) Set(key uint64, value interface{}) (interface{}, bool) {
 }
 
 func (tr *trie) Del(key uint64) (interface{}, bool) {
-	var parent *trieNode
 	node := &tr.root
 
 	for i := uint(0); i < 64; i++ {
-		parent = node
-
 		if idx := key & (1 << (63 - i)); idx == 0 {
-			if node.children[0] == nil {
-				node.children[0] = new(trieNode)
-			}
 			node = node.children[0]
 		} else {
-			if node.children[1] == nil {
-				node.children[1] = new(trieNode)
-			}
 			node = node.children[1]
 		}
 
@@ -91,11 +82,7 @@ func (tr *trie) Del(key uint64) (interface{}, bool) {
 		}
 	}
 
-	if node == parent.children[0] {
-		parent.children[0] = nil
-	} else {
-		parent.children[1] = nil
-	}
-
-	return node.value, node.hasValue
+	hadValue := node.hasValue
+	node.hasValue = false
+	return node.value, hadValue
 }

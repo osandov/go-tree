@@ -1,6 +1,7 @@
 package tree
 
 // Benchmark tree implementations.
+// vim: ft=go
 
 import (
 	"math/rand"
@@ -117,4 +118,21 @@ func BenchmarkSimpleTrieLocalGet(b *testing.B) {
 }
 func BenchmarkSimpleTrieLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewTreeFromTrie(NewTrie()))
+}
+
+// CLZ trie.
+func BenchmarkCLZTrieRandomGet(b *testing.B) {
+	benchmarkRandomGet(b, NewTreeFromTrie(NewCLZTrie()))
+}
+func BenchmarkCLZTrieRandomDel(b *testing.B) {
+	benchmarkRandomDel(b, NewTreeFromTrie(NewCLZTrie()))
+}
+func BenchmarkCLZTrieCreateBalanced(b *testing.B) {
+	benchmarkCreateBalanced(b, NewTreeFromTrie(NewCLZTrie()))
+}
+func BenchmarkCLZTrieLocalGet(b *testing.B) {
+	benchmarkLocalGet(b, NewTreeFromTrie(NewCLZTrie()))
+}
+func BenchmarkCLZTrieLocalDel(b *testing.B) {
+	benchmarkLocalDel(b, NewTreeFromTrie(NewCLZTrie()))
 }

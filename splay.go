@@ -32,9 +32,9 @@ func (s *splayTree) Set(key Key, value interface{}) (interface{}, bool) {
 	s.splayNode(node)
 
 	if exists {
-		orig_value := node.value
+		origValue := node.value
 		node.value = value
-		return orig_value, true
+		return origValue, true
 	} else {
 		node.value = value
 		return nil, false

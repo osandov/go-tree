@@ -59,9 +59,9 @@ func (bst *binarySearchTree) Set(key Key, value interface{}) (interface{}, bool)
 	node, exists := bst.add(key)
 
 	if exists {
-		orig_value := node.value
+		origValue := node.value
 		node.value = value
-		return orig_value, true
+		return origValue, true
 	} else {
 		node.value = value
 		return nil, false
