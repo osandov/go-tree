@@ -28,44 +28,59 @@ func TestBalancedTree(t *testing.T) {
 
 func benchmarkCreateBalanced(b *testing.B, tree Tree) {
 	for i := 0; i < b.N; i++ {
-		createBalancedTree(tree, 0, b.N)
+		createBalancedTree(tree, 0, NUM_NODES)
+	}
+}
+
+func benchmarkCreateRandom(b *testing.B, tree Tree) {
+	for i := 0; i < b.N / NUM_NODES; i++ {
+		for j := 0; j < NUM_NODES; j++ {
+			x := uint64(rand.Int())
+			tree.Set(Uint64Key(x), x)
+		}
 	}
 }
 
 func benchmarkRandomGet(b *testing.B, tree Tree) {
-	createBalancedTree(tree, 0, b.N)
+	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tree.Get(Uint64Key(rand.Intn(b.N)))
+		tree.Get(Uint64Key(rand.Intn(NUM_NODES)))
 	}
 }
 
 func benchmarkLocalGet(b *testing.B, tree Tree) {
-	createBalancedTree(tree, 0, b.N)
+	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		x := i + rand.Intn(10) - 5
-		tree.Get(Uint64Key(x))
+		for j := 5; j < NUM_NODES - 5; j++ {
+			x := j + rand.Intn(10) - 5
+			tree.Get(Uint64Key(x))
+		}
 	}
 }
 
 func benchmarkRandomDel(b *testing.B, tree Tree) {
-	createBalancedTree(tree, 0, b.N)
+	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		x := rand.Intn(b.N)
+		x := rand.Intn(NUM_NODES)
 		tree.Del(Uint64Key(x))
 		tree.Set(Uint64Key(x), x)
 	}
 }
 
 func benchmarkLocalDel(b *testing.B, tree Tree) {
-	createBalancedTree(tree, 0, b.N)
+	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		x := i + rand.Intn(10) - 5
-		tree.Del(Uint64Key(x))
-		tree.Set(Uint64Key(x), x)
+	for i := 0; i < b.N / NUM_NODES; i++ {
+		for j := 5; j < NUM_NODES - 5; j++ {
+			for k := 0; k < 10; k++ {
+				x := j + rand.Intn(10) - 5
+				tree.Del(Uint64Key(x))
+				tree.Set(Uint64Key(x), x)
+			}
+		}
 	}
 }
 
@@ -85,6 +100,9 @@ func BenchmarkBSTLocalGet(b *testing.B) {
 func BenchmarkBSTLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewBST())
 }
+func BenchmarkBSTCreateRandom(b *testing.B) {
+	benchmarkCreateRandom(b, NewBST())
+}
 
 // Splay tree.
 func BenchmarkSplayRandomGet(b *testing.B) {
@@ -101,6 +119,9 @@ func BenchmarkSplayLocalGet(b *testing.B) {
 }
 func BenchmarkSplayLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewSplay())
+}
+func BenchmarkSplayCreateRandom(b *testing.B) {
+	benchmarkCreateRandom(b, NewSplay())
 }
 
 // Simple trie.
@@ -119,6 +140,9 @@ func BenchmarkSimpleTrieLocalGet(b *testing.B) {
 func BenchmarkSimpleTrieLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewTreeFromTrie(NewTrie()))
 }
+func BenchmarkSimpleTrieCreateRandom(b *testing.B) {
+	benchmarkCreateRandom(b, NewTreeFromTrie(NewTrie()))
+}
 
 // CLZ trie.
 func BenchmarkCLZTrieRandomGet(b *testing.B) {
@@ -135,4 +159,7 @@ func BenchmarkCLZTrieLocalGet(b *testing.B) {
 }
 func BenchmarkCLZTrieLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewTreeFromTrie(NewCLZTrie()))
+}
+func BenchmarkCLZTrieCreateRandom(b *testing.B) {
+	benchmarkCreateRandom(b, NewTreeFromTrie(NewCLZTrie()))
 }
