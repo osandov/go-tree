@@ -206,36 +206,19 @@ func TestCLZTrieSetUnique(t *testing.T) {
 	testSetUnique(t, NewTreeFromTrie(NewCLZTrie()))
 }
 
-// Radix-3 trie.
-func TestRadixTrie3DelMissing(t *testing.T) {
-	testDelMissing(t, NewTreeFromTrie(NewRadixTrie(3)))
+// Radix trie.
+func TestRadixTrieDelMissing(t *testing.T) {
+	testDelMissing(t, NewTreeFromTrie(NewRadixTrie()))
 }
-func TestRadixTrie3Del(t *testing.T) {
-	testDel(t, NewTreeFromTrie(NewRadixTrie(3)))
+func TestRadixTrieDel(t *testing.T) {
+	testDel(t, NewTreeFromTrie(NewRadixTrie()))
 }
-func TestRadixTrie3SetDuplicates(t *testing.T) {
-	testSetDuplicates(t, NewTreeFromTrie(NewRadixTrie(3)))
+func TestRadixTrieSetDuplicates(t *testing.T) {
+	testSetDuplicates(t, NewTreeFromTrie(NewRadixTrie()))
 }
-func TestRadixTrie3GetMissing(t *testing.T) {
-	testGetMissing(t, NewTreeFromTrie(NewRadixTrie(3)))
+func TestRadixTrieGetMissing(t *testing.T) {
+	testGetMissing(t, NewTreeFromTrie(NewRadixTrie()))
 }
-func TestRadixTrie3SetUnique(t *testing.T) {
-	testSetUnique(t, NewTreeFromTrie(NewRadixTrie(3)))
-}
-
-// Radix-4 trie.
-func TestRadixTrie4DelMissing(t *testing.T) {
-	testDelMissing(t, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func TestRadixTrie4Del(t *testing.T) {
-	testDel(t, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func TestRadixTrie4SetDuplicates(t *testing.T) {
-	testSetDuplicates(t, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func TestRadixTrie4GetMissing(t *testing.T) {
-	testGetMissing(t, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func TestRadixTrie4SetUnique(t *testing.T) {
-	testSetUnique(t, NewTreeFromTrie(NewRadixTrie(4)))
+func TestRadixTrieSetUnique(t *testing.T) {
+	testSetUnique(t, NewTreeFromTrie(NewRadixTrie()))
 }

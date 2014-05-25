@@ -2,13 +2,16 @@ package tree
 
 // Path-compressed radix trie implementation.
 
+const (
+	RADIX_WIDTH = 4
+	RADIX_COUNT = 1 << RADIX_WIDTH
+	RADIX_MASK  = RADIX_COUNT - 1
+	RADIX_LIMIT = (64+(RADIX_WIDTH+1))/RADIX_WIDTH - 1
+)
+
 // Radix trie.
 type radixTrie struct {
-	root  radixTrieNode
-	radix uint
-	count uint64
-	mask  uint64
-	limit uint
+	root radixTrieNode
 }
 
 type radixTrieNode interface{}
@@ -18,7 +21,7 @@ type radixNode struct {
 	key      uint64
 	level    uint
 	count    uint
-	children []radixTrieNode
+	children [RADIX_COUNT]radixTrieNode
 }
 
 // Leaf containing a value in a bitwise trie.
@@ -28,16 +31,8 @@ type radixLeaf struct {
 }
 
 // NewRadixTrie creates an empty path-compressed radix trie.
-func NewRadixTrie(radix uint) Trie {
-	if radix < 2 {
-		panic("invalid radix")
-	}
-	rtrie := new(radixTrie)
-	rtrie.radix = radix
-	rtrie.count = 1 << radix
-	rtrie.mask = rtrie.count - 1
-	rtrie.limit = (64+(radix+1))/radix - 1
-	return rtrie
+func NewRadixTrie() Trie {
+	return new(radixTrie)
 }
 
 func (rtrie *radixTrie) Get(key uint64) (interface{}, bool) {
@@ -52,10 +47,10 @@ func (rtrie *radixTrie) Get(key uint64) (interface{}, bool) {
 			}
 		} else {
 			rnode := node.(*radixNode)
-			if rtrie.notDescendant(rnode, key) {
+			if rnode.notDescendant(key) {
 				break
 			}
-			slot := rtrie.slot(key, rnode.level)
+			slot := radixSlot(key, rnode.level)
 			node = rnode.children[slot]
 		}
 	}
@@ -78,25 +73,25 @@ func (rtrie *radixTrie) Set(key uint64, value interface{}) (interface{}, bool) {
 				leaf.value = value
 				return origValue, true
 			}
-			level := rtrie.diffLevel(key, leaf.key)
-			newKey := rtrie.trimKey(key, level+1)
-			node := rtrie.newRadixNode(newKey, level, 2)
-			rtrie.setChild(node, key, &radixLeaf{key, value})
-			rtrie.setChild(node, leaf.key, leaf)
+			level := radixDiffLevel(key, leaf.key)
+			newKey := radixTrimKey(key, level+1)
+			node := newRadixNode(newKey, level, 2)
+			node.setChild(key, &radixLeaf{key, value})
+			node.setChild(leaf.key, leaf)
 			*parent = node
 			return nil, false
 		} else {
 			rnode := node.(*radixNode)
-			if rtrie.notDescendant(rnode, key) {
-				level := rtrie.diffLevel(key, rnode.key)
-				newKey := rtrie.trimKey(key, level+1)
-				node := rtrie.newRadixNode(newKey, level, 2)
-				rtrie.setChild(node, key, &radixLeaf{key, value})
-				rtrie.setChild(node, rnode.key, rnode)
+			if rnode.notDescendant(key) {
+				level := radixDiffLevel(key, rnode.key)
+				newKey := radixTrimKey(key, level+1)
+				node := newRadixNode(newKey, level, 2)
+				node.setChild(key, &radixLeaf{key, value})
+				node.setChild(rnode.key, rnode)
 				*parent = node
 				return nil, false
 			}
-			slot := rtrie.slot(key, rnode.level)
+			slot := radixSlot(key, rnode.level)
 			if rnode.children[slot] == nil {
 				rnode.children[slot] = &radixLeaf{key, value}
 				rnode.count++
@@ -127,7 +122,7 @@ func (rtrie *radixTrie) Del(key uint64) (interface{}, bool) {
 
 	for node != nil {
 		rnode := node.(*radixNode)
-		slot := rtrie.slot(key, rnode.level)
+		slot := radixSlot(key, rnode.level)
 		child := rnode.children[slot]
 		if leaf, ok := child.(*radixLeaf); ok {
 			if leaf.key != key {
@@ -138,19 +133,19 @@ func (rtrie *radixTrie) Del(key uint64) (interface{}, bool) {
 			if rnode.count > 1 {
 				return leaf.value, true
 			}
-			var i uint64
-			for ; i < rtrie.count; i++ {
+			i := 0
+			for ; i < RADIX_COUNT; i++ {
 				if rnode.children[i] != nil {
 					break
 				}
 			}
-			if i == rtrie.count {
+			if i == RADIX_COUNT {
 				panic("incorrect count in radix trie")
 			}
 			if parent == nil {
 				rtrie.root = rnode.children[i]
 			} else {
-				rtrie.setChild(parent, key, rnode.children[i])
+				parent.setChild(key, rnode.children[i])
 			}
 			return leaf.value, true
 		} else {
@@ -162,33 +157,32 @@ func (rtrie *radixTrie) Del(key uint64) (interface{}, bool) {
 	return nil, false
 }
 
-func (rtrie *radixTrie) newRadixNode(key uint64, level uint, count uint) *radixNode {
-	children := make([]radixTrieNode, rtrie.count)
-	return &radixNode{key, level, count, children}
+func newRadixNode(key uint64, level uint, count uint) *radixNode {
+	return &radixNode{key: key, level: level, count: count}
 }
 
-// slot returns the index into the children array of the radix node for the
-// given key.
-func (rtrie *radixTrie) slot(key uint64, level uint) int {
-	return int((key >> (level * rtrie.radix)) & rtrie.mask)
+// radixSlot returns the index into the children array of the radix node for
+// the given key.
+func radixSlot(key uint64, level uint) int {
+	return int((key >> (level * RADIX_WIDTH)) & RADIX_MASK)
 }
 
-// trimKey trims a key after the given level.
-func (rtrie *radixTrie) trimKey(key uint64, level uint) uint64 {
-	key >>= level * rtrie.radix
-	key <<= level * rtrie.radix
+// radixTrimKey trims a key after the given level.
+func radixTrimKey(key uint64, level uint) uint64 {
+	key >>= level * RADIX_WIDTH
+	key <<= level * RADIX_WIDTH
 	return key
 }
 
-// diffLevel finds the highest level at which the keys differ.
-func (rtrie *radixTrie) diffLevel(key1, key2 uint64) uint {
+// radixDiffLevel finds the highest level at which the keys differ.
+func radixDiffLevel(key1, key2 uint64) uint {
 	if key1 == key2 {
 		panic("equal keys")
 	}
 
 	key := key1 ^ key2
-	for level := rtrie.limit; ; level-- {
-		if rtrie.slot(key, level) != 0 {
+	for level := uint(RADIX_LIMIT); ; level-- {
+		if radixSlot(key, level) != 0 {
 			return level
 		}
 	}
@@ -196,15 +190,16 @@ func (rtrie *radixTrie) diffLevel(key1, key2 uint64) uint {
 
 // notDescendant returns true if the given key can be determined to not be
 // underneath the given node.
-func (rtrie *radixTrie) notDescendant(rnode *radixNode, key uint64) bool {
-	if rnode.level < rtrie.limit {
-		return rtrie.trimKey(key, rnode.level+1) != rnode.key
+func (rnode *radixNode) notDescendant(key uint64) bool {
+	if rnode.level < RADIX_LIMIT {
+		return radixTrimKey(key, rnode.level+1) != rnode.key
 	} else {
 		return false
 	}
 }
 
-func (rtrie *radixTrie) setChild(rnode *radixNode, key uint64, child radixTrieNode) {
-	slot := rtrie.slot(key, rnode.level)
+// setChild adds this child in its slot.
+func (rnode *radixNode) setChild(key uint64, child radixTrieNode) {
+	slot := radixSlot(key, rnode.level)
 	rnode.children[slot] = child
 }

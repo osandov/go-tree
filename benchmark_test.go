@@ -249,66 +249,34 @@ func BenchmarkCLZTrieCreateRandom(b *testing.B) {
 	benchmarkCreateRandom(b, NewTreeFromTrie(NewCLZTrie()))
 }
 
-// Radix-3 trie.
-func BenchmarkRadixTrie3RandomGet(b *testing.B) {
-	benchmarkRandomGet(b, NewTreeFromTrie(NewRadixTrie(3)))
+// Radix trie.
+func BenchmarkRadixTrieRandomGet(b *testing.B) {
+	benchmarkRandomGet(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3RandomDel(b *testing.B) {
-	benchmarkRandomDel(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieRandomDel(b *testing.B) {
+	benchmarkRandomDel(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3CreateBalancedLarge(b *testing.B) {
-	benchmarkCreateBalancedLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieCreateBalancedLarge(b *testing.B) {
+	benchmarkCreateBalancedLarge(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3LocalGetLarge(b *testing.B) {
-	benchmarkLocalGetLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieLocalGetLarge(b *testing.B) {
+	benchmarkLocalGetLarge(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3RandomGetLarge(b *testing.B) {
-	benchmarkRandomGetLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieRandomGetLarge(b *testing.B) {
+	benchmarkRandomGetLarge(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3CreateBalanced(b *testing.B) {
-	benchmarkCreateBalanced(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieCreateBalanced(b *testing.B) {
+	benchmarkCreateBalanced(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3LocalGet(b *testing.B) {
-	benchmarkLocalGet(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieLocalGet(b *testing.B) {
+	benchmarkLocalGet(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3LocalDel(b *testing.B) {
-	benchmarkLocalDel(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieLocalDel(b *testing.B) {
+	benchmarkLocalDel(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3CreateRandomLarge(b *testing.B) {
-	benchmarkCreateRandomLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+func BenchmarkRadixTrieCreateRandomLarge(b *testing.B) {
+	benchmarkCreateRandomLarge(b, NewTreeFromTrie(NewRadixTrie()))
 }
-func BenchmarkRadixTrie3CreateRandom(b *testing.B) {
-	benchmarkCreateRandom(b, NewTreeFromTrie(NewRadixTrie(3)))
-}
-
-// Radix-4 trie.
-func BenchmarkRadixTrie4RandomGet(b *testing.B) {
-	benchmarkRandomGet(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4RandomDel(b *testing.B) {
-	benchmarkRandomDel(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4CreateBalancedLarge(b *testing.B) {
-	benchmarkCreateBalancedLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4LocalGetLarge(b *testing.B) {
-	benchmarkLocalGetLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4RandomGetLarge(b *testing.B) {
-	benchmarkRandomGetLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4CreateBalanced(b *testing.B) {
-	benchmarkCreateBalanced(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4LocalGet(b *testing.B) {
-	benchmarkLocalGet(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4LocalDel(b *testing.B) {
-	benchmarkLocalDel(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4CreateRandomLarge(b *testing.B) {
-	benchmarkCreateRandomLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
-}
-func BenchmarkRadixTrie4CreateRandom(b *testing.B) {
-	benchmarkCreateRandom(b, NewTreeFromTrie(NewRadixTrie(4)))
+func BenchmarkRadixTrieCreateRandom(b *testing.B) {
+	benchmarkCreateRandom(b, NewTreeFromTrie(NewRadixTrie()))
 }
