@@ -5,97 +5,124 @@ package tree
 // Bitwise trie using count-leading-zeroes as a hint into the tree.
 type clzTrie struct {
 	// Random-access into the nodes starting with zero bits.
-	zeroNodes [65]*trieNode
+	zeroNodes [64]*trieNode
 }
 
-// NewCLZTrie creates an empty bitwise trie. This trie implementation is
+// NewCLZTrie creates an empty binary trie. This trie implementation is
 // optimized for lexicographically small keys.
 func NewCLZTrie() Trie {
 	ctr := new(clzTrie)
-	ctr.zeroNodes[0] = new(trieNode)
+	ctr.zeroNodes[63] = new(trieNode)
+	for i := 62; i >= 0; i-- {
+		ctr.zeroNodes[i] = new(trieNode)
+		ctr.zeroNodes[i].children[0] = ctr.zeroNodes[i+1]
+	}
 	return ctr
 }
 
 func (ctr *clzTrie) Get(key uint64) (interface{}, bool) {
-	lz := clz(key)
-	node := ctr.zeroNodes[lz]
-	if node == nil {
-		return nil, false
-	}
-
-	for i := uint(lz); i < 64; i++ {
-		if idx := key & (1 << (63 - i)); idx == 0 {
-			node = node.children[0]
-		} else {
-			node = node.children[1]
-		}
-
+	if key == 0 {
+		node := ctr.zeroNodes[63].children[0]
 		if node == nil {
 			return nil, false
+		} else {
+			return node.value, true
 		}
+	} else {
+		lz := clz(key)
+		node := ctr.zeroNodes[lz]
+
+		for i := uint(64 - lz); i > 0; i-- {
+			if key&(1<<(i-1)) == 0 {
+				node = node.children[0]
+			} else {
+				node = node.children[1]
+			}
+
+			if node == nil {
+				return nil, false
+			}
+		}
+
+		return node.value, true
 	}
 
-	return node.value, node.hasValue
 }
 
 func (ctr *clzTrie) Set(key uint64, value interface{}) (interface{}, bool) {
-	lz := clz(key)
-	node := ctr.zeroNodes[lz]
-	for node == nil {
-		lz--
-		node = ctr.zeroNodes[lz]
-	}
-
-	for i := uint(lz); i < 64; i++ {
-		if idx := key & (1 << (63 - i)); idx == 0 {
-			if node.children[0] == nil {
-				node.children[0] = new(trieNode)
-				if lz >= 0 {
-					lz++
-					ctr.zeroNodes[lz] = node.children[0]
-				}
-			}
-			node = node.children[0]
+	if key == 0 {
+		node := ctr.zeroNodes[63]
+		if child := node.children[0]; child == nil {
+			node.children[0] = &trieNode{value: value}
+			return nil, false
 		} else {
-			if node.children[1] == nil {
-				node.children[1] = new(trieNode)
-			}
-			node = node.children[1]
-			lz = -1
+			origValue := child.value
+			child.value = value
+			return origValue, true
 		}
-	}
-
-	if node.hasValue {
-		origValue := node.value
-		node.value = value
-		return origValue, true
 	} else {
-		node.value = value
-		node.hasValue = true
-		return nil, false
+		lz := clz(key)
+		node := ctr.zeroNodes[lz]
+
+		for i := uint(64 - lz); i > 1; i-- {
+			if key&(1<<(i-1)) == 0 {
+				if node.children[0] == nil {
+					node.children[0] = new(trieNode)
+				}
+				node = node.children[0]
+			} else {
+				if node.children[1] == nil {
+					node.children[1] = new(trieNode)
+				}
+				node = node.children[1]
+			}
+		}
+
+		idx := key & 1
+		if node.children[idx] == nil {
+			node.children[idx] = &trieNode{value: value}
+			return nil, false
+		} else {
+			origValue := node.children[idx].value
+			node.children[idx].value = value
+			return origValue, true
+		}
 	}
 }
 
 func (ctr *clzTrie) Del(key uint64) (interface{}, bool) {
-	lz := clz(key)
-	node := ctr.zeroNodes[lz]
-	if node == nil {
-		return nil, false
-	}
-
-	for i := uint(lz); i < 64; i++ {
-		if idx := key & (1 << (63 - i)); idx == 0 {
-			node = node.children[0]
-		} else {
-			node = node.children[1]
-		}
-
-		if node == nil {
+	if key == 0 {
+		node := ctr.zeroNodes[63]
+		if node.children[0] == nil {
 			return nil, false
+		} else {
+			origValue := node.children[0].value
+			node.children[0] = nil
+			return origValue, true
+		}
+	} else {
+		lz := clz(key)
+		node := ctr.zeroNodes[lz]
+
+		for i := uint(64 - lz); i > 1; i-- {
+			if key&(1<<(i-1)) == 0 {
+				node = node.children[0]
+			} else {
+				node = node.children[1]
+			}
+
+			if node == nil {
+				return nil, false
+			}
+		}
+
+		idx := key & 1
+		if node.children[idx] == nil {
+			return nil, false
+		} else {
+			origValue := node.children[idx].value
+			node.children[idx] = nil
+			return origValue, true
 		}
 	}
-
-	hadValue := node.hasValue
-	node.hasValue = false
-	return node.value, hadValue
 }

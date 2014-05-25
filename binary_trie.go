@@ -10,22 +10,21 @@ type trie struct {
 // Node in a bitwise trie.
 type trieNode struct {
 	value    interface{}
-	hasValue bool
 	children [2]*trieNode
 }
 
-// NewTrie creates an empty bitwise trie. Time complexity is O(m), where m is
-// the size of the bit string (64). This implementation does not do any
-// optimizations for special cases.
-func NewTrie() Trie {
+// NewBinaryTrie creates an empty binary trie. Time complexity is
+// O(m), where m is the size of the bit string (64). This implementation does
+// not do any optimizations for special cases.
+func NewBinaryTrie() Trie {
 	return new(trie)
 }
 
 func (tr *trie) Get(key uint64) (interface{}, bool) {
 	node := &tr.root
 
-	for i := uint(0); i < 64; i++ {
-		if idx := key & (1 << (63 - i)); idx == 0 {
+	for i := uint(64); i > 0; i-- {
+		if key&(1<<(i-1)) == 0 {
 			node = node.children[0]
 		} else {
 			node = node.children[1]
@@ -36,14 +35,14 @@ func (tr *trie) Get(key uint64) (interface{}, bool) {
 		}
 	}
 
-	return node.value, node.hasValue
+	return node.value, true
 }
 
 func (tr *trie) Set(key uint64, value interface{}) (interface{}, bool) {
 	node := &tr.root
 
-	for i := uint(0); i < 64; i++ {
-		if idx := key & (1 << (63 - i)); idx == 0 {
+	for i := uint(64); i > 1; i-- {
+		if key&(1<<(i-1)) == 0 {
 			if node.children[0] == nil {
 				node.children[0] = new(trieNode)
 			}
@@ -56,22 +55,22 @@ func (tr *trie) Set(key uint64, value interface{}) (interface{}, bool) {
 		}
 	}
 
-	if node.hasValue {
-		origValue := node.value
-		node.value = value
-		return origValue, true
-	} else {
-		node.value = value
-		node.hasValue = true
+	idx := key & 1
+	if node.children[idx] == nil {
+		node.children[idx] = &trieNode{value: value}
 		return nil, false
+	} else {
+		origValue := node.children[idx].value
+		node.children[idx].value = value
+		return origValue, true
 	}
 }
 
 func (tr *trie) Del(key uint64) (interface{}, bool) {
 	node := &tr.root
 
-	for i := uint(0); i < 64; i++ {
-		if idx := key & (1 << (63 - i)); idx == 0 {
+	for i := uint(64); i > 1; i-- {
+		if key&(1<<(i-1)) == 0 {
 			node = node.children[0]
 		} else {
 			node = node.children[1]
@@ -82,7 +81,12 @@ func (tr *trie) Del(key uint64) (interface{}, bool) {
 		}
 	}
 
-	hadValue := node.hasValue
-	node.hasValue = false
-	return node.value, hadValue
+	idx := key & 1
+	if node.children[idx] == nil {
+		return nil, false
+	} else {
+		origValue := node.children[idx].value
+		node.children[idx] = nil
+		return origValue, true
+	}
 }

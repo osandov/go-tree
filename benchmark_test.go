@@ -126,22 +126,22 @@ func BenchmarkSplayCreateRandom(b *testing.B) {
 
 // Simple trie.
 func BenchmarkSimpleTrieRandomGet(b *testing.B) {
-	benchmarkRandomGet(b, NewTreeFromTrie(NewTrie()))
+	benchmarkRandomGet(b, NewTreeFromTrie(NewBinaryTrie()))
 }
 func BenchmarkSimpleTrieRandomDel(b *testing.B) {
-	benchmarkRandomDel(b, NewTreeFromTrie(NewTrie()))
+	benchmarkRandomDel(b, NewTreeFromTrie(NewBinaryTrie()))
 }
 func BenchmarkSimpleTrieCreateBalanced(b *testing.B) {
-	benchmarkCreateBalanced(b, NewTreeFromTrie(NewTrie()))
+	benchmarkCreateBalanced(b, NewTreeFromTrie(NewBinaryTrie()))
 }
 func BenchmarkSimpleTrieLocalGet(b *testing.B) {
-	benchmarkLocalGet(b, NewTreeFromTrie(NewTrie()))
+	benchmarkLocalGet(b, NewTreeFromTrie(NewBinaryTrie()))
 }
 func BenchmarkSimpleTrieLocalDel(b *testing.B) {
-	benchmarkLocalDel(b, NewTreeFromTrie(NewTrie()))
+	benchmarkLocalDel(b, NewTreeFromTrie(NewBinaryTrie()))
 }
 func BenchmarkSimpleTrieCreateRandom(b *testing.B) {
-	benchmarkCreateRandom(b, NewTreeFromTrie(NewTrie()))
+	benchmarkCreateRandom(b, NewTreeFromTrie(NewBinaryTrie()))
 }
 
 // CLZ trie.

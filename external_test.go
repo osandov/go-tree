@@ -175,19 +175,19 @@ func TestSplaySetUnique(t *testing.T) {
 
 // Simple trie.
 func TestSimpleTrieDelMissing(t *testing.T) {
-	testDelMissing(t, NewTreeFromTrie(NewTrie()))
+	testDelMissing(t, NewTreeFromTrie(NewBinaryTrie()))
 }
 func TestSimpleTrieDel(t *testing.T) {
-	testDel(t, NewTreeFromTrie(NewTrie()))
+	testDel(t, NewTreeFromTrie(NewBinaryTrie()))
 }
 func TestSimpleTrieSetDuplicates(t *testing.T) {
-	testSetDuplicates(t, NewTreeFromTrie(NewTrie()))
+	testSetDuplicates(t, NewTreeFromTrie(NewBinaryTrie()))
 }
 func TestSimpleTrieGetMissing(t *testing.T) {
-	testGetMissing(t, NewTreeFromTrie(NewTrie()))
+	testGetMissing(t, NewTreeFromTrie(NewBinaryTrie()))
 }
 func TestSimpleTrieSetUnique(t *testing.T) {
-	testSetUnique(t, NewTreeFromTrie(NewTrie()))
+	testSetUnique(t, NewTreeFromTrie(NewBinaryTrie()))
 }
 
 // CLZ trie.

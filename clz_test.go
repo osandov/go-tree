@@ -34,9 +34,6 @@ func BenchmarkCLZ(b *testing.B) {
 }
 
 func testClzSimple(t *testing.T, clzImpl func(uint64) int) {
-	if y := clzImpl(0); y != 64 {
-		t.Errorf("clz failed: expected %d, got %d\n", 64, y)
-	}
 	x := uint64(1)
 	for i := 0; i < 64; i++ {
 		if y := clzImpl(x); y != (63 - i) {
