@@ -4,7 +4,6 @@ package tree
 // vim: ft=go
 
 import (
-	"math/rand"
 	"testing"
 )
 
@@ -14,7 +13,7 @@ const NUM_NODES = 10000
 
 func testGetMissing(t *testing.T, tree Tree) {
 	for i := 0; i < NUM_NODES; i++ {
-		k := rand.Int()
+		k := testRand.Int()
 		_, ok := tree.Get(Uint64Key(k))
 		if ok {
 			t.Fatalf("get failed: non-existent key %v was found\n", k)
@@ -23,7 +22,7 @@ func testGetMissing(t *testing.T, tree Tree) {
 }
 
 func testSetUnique(t *testing.T, tree Tree) {
-	for i, v := range rand.Perm(NUM_NODES) {
+	for i, v := range testRand.Perm(NUM_NODES) {
 		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %v of %v\n", i, v)
@@ -43,14 +42,14 @@ func testSetUnique(t *testing.T, tree Tree) {
 }
 
 func testSetDuplicates(t *testing.T, tree Tree) {
-	for i, v := range rand.Perm(NUM_NODES) {
+	for i, v := range testRand.Perm(NUM_NODES) {
 		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("set failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
-	for i, v := range rand.Perm(NUM_NODES) {
+	for i, v := range testRand.Perm(NUM_NODES) {
 		ov, ok := tree.Set(Uint64Key(v), -v)
 		if !ok {
 			t.Errorf("set failed: duplicate missing on set %v of %v\n", i, v)
@@ -75,7 +74,7 @@ func testSetDuplicates(t *testing.T, tree Tree) {
 
 func testDelMissing(t *testing.T, tree Tree) {
 	for i := 0; i < NUM_NODES; i++ {
-		k := rand.Int()
+		k := testRand.Int()
 		_, ok := tree.Del(Uint64Key(k))
 		if ok {
 			t.Fatalf("delete failed: non-existent key %v was found\n", k)
@@ -84,7 +83,7 @@ func testDelMissing(t *testing.T, tree Tree) {
 }
 
 func testDel(t *testing.T, tree Tree) {
-	for i, v := range rand.Perm(NUM_NODES) {
+	for i, v := range testRand.Perm(NUM_NODES) {
 		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %v of %v\n", i, v)
@@ -101,14 +100,14 @@ func testDel(t *testing.T, tree Tree) {
 		}
 	}
 
-	for i, v := range rand.Perm(NUM_NODES) {
+	for i, v := range testRand.Perm(NUM_NODES) {
 		_, ok := tree.Set(Uint64Key(v), v)
 		if ok {
 			t.Fatalf("delete failed: duplicate reported on set %v of %v\n", i, v)
 		}
 	}
 
-	perm := rand.Perm(NUM_NODES)
+	perm := testRand.Perm(NUM_NODES)
 
 	for _, v := range perm[:NUM_NODES/2] {
 		ov, ok := tree.Del(Uint64Key(v))
@@ -205,4 +204,38 @@ func TestCLZTrieGetMissing(t *testing.T) {
 }
 func TestCLZTrieSetUnique(t *testing.T) {
 	testSetUnique(t, NewTreeFromTrie(NewCLZTrie()))
+}
+
+// Radix-3 trie.
+func TestRadixTrie3DelMissing(t *testing.T) {
+	testDelMissing(t, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func TestRadixTrie3Del(t *testing.T) {
+	testDel(t, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func TestRadixTrie3SetDuplicates(t *testing.T) {
+	testSetDuplicates(t, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func TestRadixTrie3GetMissing(t *testing.T) {
+	testGetMissing(t, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func TestRadixTrie3SetUnique(t *testing.T) {
+	testSetUnique(t, NewTreeFromTrie(NewRadixTrie(3)))
+}
+
+// Radix-4 trie.
+func TestRadixTrie4DelMissing(t *testing.T) {
+	testDelMissing(t, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func TestRadixTrie4Del(t *testing.T) {
+	testDel(t, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func TestRadixTrie4SetDuplicates(t *testing.T) {
+	testSetDuplicates(t, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func TestRadixTrie4GetMissing(t *testing.T) {
+	testGetMissing(t, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func TestRadixTrie4SetUnique(t *testing.T) {
+	testSetUnique(t, NewTreeFromTrie(NewRadixTrie(4)))
 }

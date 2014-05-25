@@ -6,7 +6,10 @@ package tree
 import (
 	"math/rand"
 	"testing"
+	"time"
 )
+
+var testRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 func createBalancedTree(tree Tree, n, m int) {
 	if n >= m {
@@ -32,10 +35,25 @@ func benchmarkCreateBalanced(b *testing.B, tree Tree) {
 	}
 }
 
+func benchmarkCreateBalancedLarge(b *testing.B, tree Tree) {
+	for i := 0; i < b.N; i++ {
+		createBalancedTree(tree, 0x80000000, 0x80000000+NUM_NODES)
+	}
+}
+
 func benchmarkCreateRandom(b *testing.B, tree Tree) {
 	for i := 0; i < b.N/NUM_NODES; i++ {
 		for j := 0; j < NUM_NODES; j++ {
-			x := uint64(rand.Int())
+			x := uint64(testRand.Int())
+			tree.Set(Uint64Key(x), x)
+		}
+	}
+}
+
+func benchmarkCreateRandomLarge(b *testing.B, tree Tree) {
+	for i := 0; i < b.N/NUM_NODES; i++ {
+		for j := 0; j < NUM_NODES; j++ {
+			x := 0x80000000 + uint64(testRand.Int())
 			tree.Set(Uint64Key(x), x)
 		}
 	}
@@ -45,7 +63,15 @@ func benchmarkRandomGet(b *testing.B, tree Tree) {
 	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tree.Get(Uint64Key(rand.Intn(NUM_NODES)))
+		tree.Get(Uint64Key(testRand.Intn(NUM_NODES)))
+	}
+}
+
+func benchmarkRandomGetLarge(b *testing.B, tree Tree) {
+	createBalancedTree(tree, 0x80000000, 0x80000000+NUM_NODES)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		tree.Get(Uint64Key(0x80000000 + testRand.Intn(NUM_NODES)))
 	}
 }
 
@@ -54,7 +80,18 @@ func benchmarkLocalGet(b *testing.B, tree Tree) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for j := 5; j < NUM_NODES-5; j++ {
-			x := j + rand.Intn(10) - 5
+			x := j + testRand.Intn(10) - 5
+			tree.Get(Uint64Key(x))
+		}
+	}
+}
+
+func benchmarkLocalGetLarge(b *testing.B, tree Tree) {
+	createBalancedTree(tree, 0x80000000, 0x80000000+NUM_NODES)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 5; j < NUM_NODES-5; j++ {
+			x := 0x80000000 + j + testRand.Intn(10) - 5
 			tree.Get(Uint64Key(x))
 		}
 	}
@@ -64,7 +101,7 @@ func benchmarkRandomDel(b *testing.B, tree Tree) {
 	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		x := rand.Intn(NUM_NODES)
+		x := testRand.Intn(NUM_NODES)
 		tree.Del(Uint64Key(x))
 		tree.Set(Uint64Key(x), x)
 	}
@@ -76,7 +113,7 @@ func benchmarkLocalDel(b *testing.B, tree Tree) {
 	for i := 0; i < b.N/NUM_NODES; i++ {
 		for j := 5; j < NUM_NODES-5; j++ {
 			for k := 0; k < 10; k++ {
-				x := j + rand.Intn(10) - 5
+				x := j + testRand.Intn(10) - 5
 				tree.Del(Uint64Key(x))
 				tree.Set(Uint64Key(x), x)
 			}
@@ -91,6 +128,15 @@ func BenchmarkBSTRandomGet(b *testing.B) {
 func BenchmarkBSTRandomDel(b *testing.B) {
 	benchmarkRandomDel(b, NewBST())
 }
+func BenchmarkBSTCreateBalancedLarge(b *testing.B) {
+	benchmarkCreateBalancedLarge(b, NewBST())
+}
+func BenchmarkBSTLocalGetLarge(b *testing.B) {
+	benchmarkLocalGetLarge(b, NewBST())
+}
+func BenchmarkBSTRandomGetLarge(b *testing.B) {
+	benchmarkRandomGetLarge(b, NewBST())
+}
 func BenchmarkBSTCreateBalanced(b *testing.B) {
 	benchmarkCreateBalanced(b, NewBST())
 }
@@ -99,6 +145,9 @@ func BenchmarkBSTLocalGet(b *testing.B) {
 }
 func BenchmarkBSTLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewBST())
+}
+func BenchmarkBSTCreateRandomLarge(b *testing.B) {
+	benchmarkCreateRandomLarge(b, NewBST())
 }
 func BenchmarkBSTCreateRandom(b *testing.B) {
 	benchmarkCreateRandom(b, NewBST())
@@ -111,6 +160,15 @@ func BenchmarkSplayRandomGet(b *testing.B) {
 func BenchmarkSplayRandomDel(b *testing.B) {
 	benchmarkRandomDel(b, NewSplay())
 }
+func BenchmarkSplayCreateBalancedLarge(b *testing.B) {
+	benchmarkCreateBalancedLarge(b, NewSplay())
+}
+func BenchmarkSplayLocalGetLarge(b *testing.B) {
+	benchmarkLocalGetLarge(b, NewSplay())
+}
+func BenchmarkSplayRandomGetLarge(b *testing.B) {
+	benchmarkRandomGetLarge(b, NewSplay())
+}
 func BenchmarkSplayCreateBalanced(b *testing.B) {
 	benchmarkCreateBalanced(b, NewSplay())
 }
@@ -119,6 +177,9 @@ func BenchmarkSplayLocalGet(b *testing.B) {
 }
 func BenchmarkSplayLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewSplay())
+}
+func BenchmarkSplayCreateRandomLarge(b *testing.B) {
+	benchmarkCreateRandomLarge(b, NewSplay())
 }
 func BenchmarkSplayCreateRandom(b *testing.B) {
 	benchmarkCreateRandom(b, NewSplay())
@@ -131,6 +192,15 @@ func BenchmarkSimpleTrieRandomGet(b *testing.B) {
 func BenchmarkSimpleTrieRandomDel(b *testing.B) {
 	benchmarkRandomDel(b, NewTreeFromTrie(NewBinaryTrie()))
 }
+func BenchmarkSimpleTrieCreateBalancedLarge(b *testing.B) {
+	benchmarkCreateBalancedLarge(b, NewTreeFromTrie(NewBinaryTrie()))
+}
+func BenchmarkSimpleTrieLocalGetLarge(b *testing.B) {
+	benchmarkLocalGetLarge(b, NewTreeFromTrie(NewBinaryTrie()))
+}
+func BenchmarkSimpleTrieRandomGetLarge(b *testing.B) {
+	benchmarkRandomGetLarge(b, NewTreeFromTrie(NewBinaryTrie()))
+}
 func BenchmarkSimpleTrieCreateBalanced(b *testing.B) {
 	benchmarkCreateBalanced(b, NewTreeFromTrie(NewBinaryTrie()))
 }
@@ -139,6 +209,9 @@ func BenchmarkSimpleTrieLocalGet(b *testing.B) {
 }
 func BenchmarkSimpleTrieLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewTreeFromTrie(NewBinaryTrie()))
+}
+func BenchmarkSimpleTrieCreateRandomLarge(b *testing.B) {
+	benchmarkCreateRandomLarge(b, NewTreeFromTrie(NewBinaryTrie()))
 }
 func BenchmarkSimpleTrieCreateRandom(b *testing.B) {
 	benchmarkCreateRandom(b, NewTreeFromTrie(NewBinaryTrie()))
@@ -151,6 +224,15 @@ func BenchmarkCLZTrieRandomGet(b *testing.B) {
 func BenchmarkCLZTrieRandomDel(b *testing.B) {
 	benchmarkRandomDel(b, NewTreeFromTrie(NewCLZTrie()))
 }
+func BenchmarkCLZTrieCreateBalancedLarge(b *testing.B) {
+	benchmarkCreateBalancedLarge(b, NewTreeFromTrie(NewCLZTrie()))
+}
+func BenchmarkCLZTrieLocalGetLarge(b *testing.B) {
+	benchmarkLocalGetLarge(b, NewTreeFromTrie(NewCLZTrie()))
+}
+func BenchmarkCLZTrieRandomGetLarge(b *testing.B) {
+	benchmarkRandomGetLarge(b, NewTreeFromTrie(NewCLZTrie()))
+}
 func BenchmarkCLZTrieCreateBalanced(b *testing.B) {
 	benchmarkCreateBalanced(b, NewTreeFromTrie(NewCLZTrie()))
 }
@@ -160,6 +242,73 @@ func BenchmarkCLZTrieLocalGet(b *testing.B) {
 func BenchmarkCLZTrieLocalDel(b *testing.B) {
 	benchmarkLocalDel(b, NewTreeFromTrie(NewCLZTrie()))
 }
+func BenchmarkCLZTrieCreateRandomLarge(b *testing.B) {
+	benchmarkCreateRandomLarge(b, NewTreeFromTrie(NewCLZTrie()))
+}
 func BenchmarkCLZTrieCreateRandom(b *testing.B) {
 	benchmarkCreateRandom(b, NewTreeFromTrie(NewCLZTrie()))
+}
+
+// Radix-3 trie.
+func BenchmarkRadixTrie3RandomGet(b *testing.B) {
+	benchmarkRandomGet(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3RandomDel(b *testing.B) {
+	benchmarkRandomDel(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3CreateBalancedLarge(b *testing.B) {
+	benchmarkCreateBalancedLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3LocalGetLarge(b *testing.B) {
+	benchmarkLocalGetLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3RandomGetLarge(b *testing.B) {
+	benchmarkRandomGetLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3CreateBalanced(b *testing.B) {
+	benchmarkCreateBalanced(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3LocalGet(b *testing.B) {
+	benchmarkLocalGet(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3LocalDel(b *testing.B) {
+	benchmarkLocalDel(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3CreateRandomLarge(b *testing.B) {
+	benchmarkCreateRandomLarge(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+func BenchmarkRadixTrie3CreateRandom(b *testing.B) {
+	benchmarkCreateRandom(b, NewTreeFromTrie(NewRadixTrie(3)))
+}
+
+// Radix-4 trie.
+func BenchmarkRadixTrie4RandomGet(b *testing.B) {
+	benchmarkRandomGet(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4RandomDel(b *testing.B) {
+	benchmarkRandomDel(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4CreateBalancedLarge(b *testing.B) {
+	benchmarkCreateBalancedLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4LocalGetLarge(b *testing.B) {
+	benchmarkLocalGetLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4RandomGetLarge(b *testing.B) {
+	benchmarkRandomGetLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4CreateBalanced(b *testing.B) {
+	benchmarkCreateBalanced(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4LocalGet(b *testing.B) {
+	benchmarkLocalGet(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4LocalDel(b *testing.B) {
+	benchmarkLocalDel(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4CreateRandomLarge(b *testing.B) {
+	benchmarkCreateRandomLarge(b, NewTreeFromTrie(NewRadixTrie(4)))
+}
+func BenchmarkRadixTrie4CreateRandom(b *testing.B) {
+	benchmarkCreateRandom(b, NewTreeFromTrie(NewRadixTrie(4)))
 }

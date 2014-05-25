@@ -6,7 +6,10 @@ package tree
 import (
 	"math/rand"
 	"testing"
+	"time"
 )
+
+var testRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 func createBalancedTree(tree Tree, n, m int) {
 	if n >= m {
@@ -32,10 +35,25 @@ func benchmarkCreateBalanced(b *testing.B, tree Tree) {
 	}
 }
 
+func benchmarkCreateBalancedLarge(b *testing.B, tree Tree) {
+	for i := 0; i < b.N; i++ {
+		createBalancedTree(tree, 0x80000000, 0x80000000+NUM_NODES)
+	}
+}
+
 func benchmarkCreateRandom(b *testing.B, tree Tree) {
 	for i := 0; i < b.N/NUM_NODES; i++ {
 		for j := 0; j < NUM_NODES; j++ {
-			x := uint64(rand.Int())
+			x := uint64(testRand.Int())
+			tree.Set(Uint64Key(x), x)
+		}
+	}
+}
+
+func benchmarkCreateRandomLarge(b *testing.B, tree Tree) {
+	for i := 0; i < b.N/NUM_NODES; i++ {
+		for j := 0; j < NUM_NODES; j++ {
+			x := 0x80000000 + uint64(testRand.Int())
 			tree.Set(Uint64Key(x), x)
 		}
 	}
@@ -45,7 +63,15 @@ func benchmarkRandomGet(b *testing.B, tree Tree) {
 	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		tree.Get(Uint64Key(rand.Intn(NUM_NODES)))
+		tree.Get(Uint64Key(testRand.Intn(NUM_NODES)))
+	}
+}
+
+func benchmarkRandomGetLarge(b *testing.B, tree Tree) {
+	createBalancedTree(tree, 0x80000000, 0x80000000+NUM_NODES)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		tree.Get(Uint64Key(0x80000000 + testRand.Intn(NUM_NODES)))
 	}
 }
 
@@ -54,7 +80,18 @@ func benchmarkLocalGet(b *testing.B, tree Tree) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for j := 5; j < NUM_NODES-5; j++ {
-			x := j + rand.Intn(10) - 5
+			x := j + testRand.Intn(10) - 5
+			tree.Get(Uint64Key(x))
+		}
+	}
+}
+
+func benchmarkLocalGetLarge(b *testing.B, tree Tree) {
+	createBalancedTree(tree, 0x80000000, 0x80000000+NUM_NODES)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 5; j < NUM_NODES-5; j++ {
+			x := 0x80000000 + j + testRand.Intn(10) - 5
 			tree.Get(Uint64Key(x))
 		}
 	}
@@ -64,7 +101,7 @@ func benchmarkRandomDel(b *testing.B, tree Tree) {
 	createBalancedTree(tree, 0, NUM_NODES)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		x := rand.Intn(NUM_NODES)
+		x := testRand.Intn(NUM_NODES)
 		tree.Del(Uint64Key(x))
 		tree.Set(Uint64Key(x), x)
 	}
@@ -76,7 +113,7 @@ func benchmarkLocalDel(b *testing.B, tree Tree) {
 	for i := 0; i < b.N/NUM_NODES; i++ {
 		for j := 5; j < NUM_NODES-5; j++ {
 			for k := 0; k < 10; k++ {
-				x := j + rand.Intn(10) - 5
+				x := j + testRand.Intn(10) - 5
 				tree.Del(Uint64Key(x))
 				tree.Set(Uint64Key(x), x)
 			}
@@ -91,3 +128,7 @@ func benchmarkLocalDel(b *testing.B, tree Tree) {
 // TEST: Simple trie: SimpleTrie: NewTreeFromTrie(NewBinaryTrie())
 
 // TEST: CLZ trie: CLZTrie: NewTreeFromTrie(NewCLZTrie())
+
+// TEST: Radix-3 trie: RadixTrie3: NewTreeFromTrie(NewRadixTrie(3))
+
+// TEST: Radix-4 trie: RadixTrie4: NewTreeFromTrie(NewRadixTrie(4))
